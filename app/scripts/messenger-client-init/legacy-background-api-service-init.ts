@@ -16,6 +16,7 @@ import { MessengerClientInitFunction } from './types';
  * @param request.seedlessOperationMutex - A mutex to use for seedless operations.
  * @param request.createVaultMutex - A mutex to serialize vault creation/export with locking.
  * @param request.offscreenPromise - A promise that resolves when the offscreen document is ready.
+ * @param request.restoreEnabledNetworkMap - Restores the NetworkEnablementController's enabled network map to a previous value.
  * @returns The initialized service.
  */
 export const LegacyBackgroundApiServiceInit: MessengerClientInitFunction<
@@ -30,6 +31,7 @@ export const LegacyBackgroundApiServiceInit: MessengerClientInitFunction<
   seedlessOperationMutex,
   createVaultMutex,
   offscreenPromise,
+  restoreEnabledNetworkMap,
 }) => {
   const messengerClient = new LegacyBackgroundApiService({
     messenger: controllerMessenger,
@@ -40,6 +42,7 @@ export const LegacyBackgroundApiServiceInit: MessengerClientInitFunction<
     seedlessOperationMutex,
     createVaultMutex,
     offscreenPromise,
+    restoreEnabledNetworkMap,
   });
 
   return {

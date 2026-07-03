@@ -29,6 +29,10 @@ export function getLegacyBackgroundApiServiceMessenger(
       'NetworkController:getState',
       'NetworkController:getNetworkClientById',
       'NetworkController:getSelectedNetworkClient',
+      'NetworkController:addNetwork',
+      'NetworkController:setActiveNetwork',
+      'NetworkController:lookupNetwork',
+      'NetworkEnablementController:getState',
       'RemoteFeatureFlagController:getState',
       'CurrencyRateController:setCurrentCurrency',
       'AssetsController:getAssets',
@@ -112,6 +116,7 @@ export function getLegacyBackgroundApiServiceMessenger(
       'ShieldController:start',
       'ShieldController:stop',
     ],
+    events: ['NetworkEnablementController:stateChange'],
   });
 
   return serviceMessenger;
