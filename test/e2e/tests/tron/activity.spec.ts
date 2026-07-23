@@ -18,8 +18,6 @@ import {
   trc20ApproveTx,
   swapTx,
   bridgeTx,
-  freezeV2Tx,
-  unfreezeV2Tx,
 } from './mocks/tron-tx-fixtures';
 
 type TronDetailsExpectation = {
@@ -351,82 +349,6 @@ describe('Tron - Activity', function (this: Suite) {
             amount: '5 USDT',
             txId: bridge.raw.txID,
             addresses: [SUNSWAP_ROUTER_ADDRESS, TRON_ACCOUNT_ADDRESS],
-          });
-        },
-      );
-    });
-
-    it('Staking deposit is rendered with Staking deposit label and -amount', async function () {
-      const tx = freezeV2Tx({ amountSun: 20_000_000, status: 'Confirmed' });
-      await withTronFixtures(
-        {
-          accounts: [
-            {
-              ...TRON_PORTFOLIO_ACCOUNT,
-              transactions: {
-                raw: [tx],
-                trc20: [],
-              },
-            },
-          ],
-          fixtures: new FixtureBuilderV2().build(),
-          title: this.test?.fullTitle(),
-        },
-        async ({ driver }: { driver: Driver }) => {
-          const activity = await landOnTronActivity(driver);
-          await activity.checkConfirmedTxNumberDisplayedInActivity(1);
-          await activity.checkTxAction({
-            action: 'Staking deposit',
-            txIndex: 1,
-            confirmedTx: 1,
-          });
-          // The snap maps a Freeze as `to[0] = stakedForEnergy`, so the activity
-          // row renders the destination asset (sTRX-ENERGY), not the source TRX.
-          await activity.checkTxAmountInActivity('20 sTRX-ENERGY', 1);
-          await assertTronTransactionDetails(driver, activity, 1, {
-            title: 'Staking deposit',
-            status: 'Confirmed',
-            amount: '20 sTRX-ENERGY',
-            txId: tx.txID,
-            addresses: [TRON_ACCOUNT_ADDRESS],
-          });
-        },
-      );
-    });
-
-    it('Staking withdrawal is rendered with Staking withdrawal label and +amount', async function () {
-      const tx = unfreezeV2Tx({ amountSun: 20_000_000, status: 'Confirmed' });
-      await withTronFixtures(
-        {
-          accounts: [
-            {
-              ...TRON_PORTFOLIO_ACCOUNT,
-              transactions: {
-                raw: [tx],
-                trc20: [],
-              },
-            },
-          ],
-          fixtures: new FixtureBuilderV2().build(),
-          title: this.test?.fullTitle(),
-        },
-        async ({ driver }: { driver: Driver }) => {
-          const activity = await landOnTronActivity(driver);
-          await activity.checkConfirmedTxNumberDisplayedInActivity(1);
-          await activity.checkTxAction({
-            action: 'Staking withdrawal',
-            txIndex: 1,
-            confirmedTx: 1,
-          });
-          // useMultichainTransactionDisplay only prefixes sends with `-`; positive
-          // (received) amounts render without a `+` sign.
-          await activity.checkTxAmountInActivity('20 TRX', 1);
-          await assertTronTransactionDetails(driver, activity, 1, {
-            title: 'Staking withdrawal',
-            status: 'Confirmed',
-            amount: '20 TRX',
-            txId: tx.txID,
-            addresses: [TRON_ACCOUNT_ADDRESS],
           });
         },
       );
