@@ -7,12 +7,8 @@ import {
   TextColor,
   TextVariant,
 } from '../../../../../helpers/constants/design-system';
-import {
-  formatValue,
-  isValidAmount,
-  // TODO: Remove restricted import
-  // eslint-disable-next-line import-x/no-restricted-paths
-} from '../../../../../../app/scripts/lib/util';
+import { isValidAmount } from '../../../../../../shared/lib/format-value';
+import { useFormatters } from '../../../../../hooks/useFormatters';
 
 export const PercentageChange = ({
   value,
@@ -21,18 +17,27 @@ export const PercentageChange = ({
   value: number | null | undefined;
   address: `0x${string}` | CaipAssetType;
 }) => {
+  const { formatNumber } = useFormatters();
+
   let color = TextColor.textAlternative;
   if (isValidAmount(value)) {
-    if ((value as number) === 0) {
+    if (value === 0) {
       color = TextColor.textDefault;
-    } else if ((value as number) > 0) {
+    } else if (value > 0) {
       color = TextColor.successDefault;
     } else {
       color = TextColor.errorDefault;
     }
   }
 
-  const formattedValue = formatValue(value, false);
+  const formattedValue = isValidAmount(value)
+    ? formatNumber(value / 100, {
+        style: 'percent',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        signDisplay: 'always',
+      })
+    : '';
 
   return (
     <Box display={Display.Flex} alignItems={AlignItems.center} gap={1}>
