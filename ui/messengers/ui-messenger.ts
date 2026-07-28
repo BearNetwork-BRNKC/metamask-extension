@@ -3,10 +3,9 @@ import {
   MessengerActions,
   MessengerEvents,
   type ActionConstraint,
+  type ActionHandler,
   type EventConstraint,
   type ExtractEventPayload,
-  type ExtractActionParameters,
-  ExtractActionResponse,
   ExtractEventHandler,
 } from '@metamask/messenger';
 import type { Json } from '@metamask/utils';
@@ -45,7 +44,7 @@ type MakeActionsAsynchronous<Action> = Action extends ActionConstraint
   ? { type: Action['type']; handler: MakeAsynchronous<Action['handler']> }
   : never;
 
-const EXCLUDED_ACTIONS = MESSENGERS_WITH_EXCLUSIONS.flatMap(
+const EXCLUDED_ACTIONS: string[] = MESSENGERS_WITH_EXCLUSIONS.flatMap(
   (config) => config.EXCLUDED_CAPABILITIES.actions,
 );
 
@@ -114,8 +113,11 @@ export class UIMessenger {
   /**
    * The set of messengers we've delegated actions to, by action type.
    */
+  // Keyed by `string` rather than `UIMessengerActions['type']`: the latter
+  // re-resolves the aggregate action union, which exceeds TypeScript's
+  // representation limit (TS2590) once enough controllers are registered.
   readonly #actionDelegationTargets = new Map<
-    UIMessengerActions['type'],
+    string,
     Set<DelegatedMessenger>
   >();
 
@@ -145,8 +147,12 @@ export class UIMessenger {
    */
   async delegate<
     Delegatee extends Messenger<string, ActionConstraint, EventConstraint>,
-    DelegatedActions extends (MessengerActions<Delegatee>['type'] &
-      UIMessengerActions['type'])[],
+    // Constrained to the delegatee's own action types only. Intersecting with
+    // `UIMessengerActions['type']` re-resolves the aggregate action union,
+    // which exceeds TypeScript's representation limit (TS2590) once enough
+    // controllers are registered. Non-UI-exposed actions are still rejected at
+    // runtime by the `EXCLUDED_ACTIONS` check in the delegated handler.
+    DelegatedActions extends MessengerActions<Delegatee>['type'][],
     DelegatedEvents extends (MessengerEvents<Delegatee>['type'] &
       UIMessengerEvents['type'])[],
   >({
@@ -159,15 +165,13 @@ export class UIMessenger {
     messenger: Delegatee;
   }): Promise<void> {
     for (const actionType of actions ?? []) {
-      const delegatedActionHandler = (
-        ...args: ExtractActionParameters<
-          MessengerActions<Delegatee> & UIMessengerActions,
-          typeof actionType
-        >
-      ): ExtractActionResponse<
-        MessengerActions<Delegatee> & UIMessengerActions,
-        typeof actionType
-      > => {
+      // Typed loosely and cast at the registration boundary below: every
+      // delegated action is forwarded through `submitRequestToBackground`
+      // (which resolves to `Promise<Json>`), so the precise per-action
+      // parameter/response types add no runtime value here. Extracting them
+      // from the full `UIMessengerActions` union at this site is what tips the
+      // aggregate action union past TypeScript's representation limit (TS2590).
+      const delegatedActionHandler = (...args: Json[]): Promise<Json> => {
         if (EXCLUDED_ACTIONS.includes(actionType)) {
           throw new Error(
             `The action "${actionType}" has not been exposed to the UI.`,
@@ -192,10 +196,16 @@ export class UIMessenger {
       delegationTargets.add(messenger);
 
       // Intentionally calling a "deprecated" method here, since this is the
-      // internal API for delegation.
-      messenger._internalRegisterDelegatedActionHandler(
+      // internal API for delegation. Cast to the broadened `DelegatedMessenger`
+      // (as the class's own bookkeeping does) so this registration doesn't
+      // re-resolve the delegatee's action union against the aggregate root
+      // union, which exceeds TypeScript's representation limit (TS2590).
+      (messenger as DelegatedMessenger)._internalRegisterDelegatedActionHandler(
         actionType,
-        delegatedActionHandler,
+        delegatedActionHandler as unknown as ActionHandler<
+          ActionConstraint,
+          typeof actionType
+        >,
       );
     }
 

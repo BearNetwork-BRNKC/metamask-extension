@@ -1,10 +1,3 @@
-import type {
-  RootMessengerActions,
-  RootMessengerEvents,
-  // We are only using the type here (though this should probably be in
-  // `shared/`).
-  // eslint-disable-next-line import-x/no-restricted-paths
-} from '../../../app/scripts/lib/messenger';
 import * as keyringController from './keyring-controller';
 
 type MessengerExclusions = {
@@ -12,8 +5,14 @@ type MessengerExclusions = {
   // property of a messenger configuration.
   // eslint-disable-next-line @typescript-eslint/naming-convention
   EXCLUDED_CAPABILITIES: {
-    actions: readonly RootMessengerActions['type'][];
-    events: readonly RootMessengerEvents['type'][];
+    // Typed as `string[]` rather than `RootMessengerActions['type'][]` /
+    // `RootMessengerEvents['type'][]`: the latter re-resolve the aggregate root
+    // union, which exceeds TypeScript's representation limit (TS2590) once
+    // enough controllers are registered. The exact excluded-capability literals
+    // are still preserved via `defineExcludedCapabilities`'s `const` generics,
+    // so `ExcludedActionTypes` (used in `Exclude<...>`) remains precise.
+    actions: readonly string[];
+    events: readonly string[];
   };
 };
 

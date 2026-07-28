@@ -5,13 +5,6 @@ import {
   MessengerActions,
   MessengerEvents,
 } from '@metamask/messenger';
-import type {
-  RootMessengerActions,
-  RootMessengerEvents,
-  // We're just using the types here (although this should probably be in `shared/`)
-  // eslint-disable-next-line import-x/no-restricted-paths
-} from '../../../app/scripts/lib/messenger';
-import type { ValidateElements } from '../../helpers/route-messenger-helpers';
 
 export type ExtractMessengerActionsExcluding<
   MessengerInstance extends Messenger<
@@ -49,8 +42,13 @@ export function defineExcludedCapabilities<
   const ActionTypes extends readonly string[],
   const EventTypes extends readonly string[],
 >(capabilities: {
-  actions: ValidateElements<ActionTypes, RootMessengerActions['type']>;
-  events: ValidateElements<EventTypes, RootMessengerEvents['type']>;
+  // These are intentionally not validated against `RootMessengerActions['type']`
+  // / `RootMessengerEvents['type']`: doing so re-resolves the aggregate root
+  // union, which exceeds TypeScript's representation limit (TS2590) once enough
+  // controllers are registered. The `const` type parameters still preserve the
+  // exact excluded-capability string literals for downstream `Exclude<...>`.
+  actions: ActionTypes;
+  events: EventTypes;
 }): { actions: ActionTypes; events: EventTypes } {
-  return capabilities as { actions: ActionTypes; events: EventTypes };
+  return capabilities;
 }

@@ -3,15 +3,12 @@ import {
   MOCK_ANY_NAMESPACE,
   type MockAnyNamespace,
 } from '@metamask/messenger';
+import type { Json } from '@metamask/utils';
 import {
   submitRequestToBackground,
   subscribeToMessengerEvent,
 } from '../store/background-connection';
-import {
-  UIMessenger,
-  type UIMessengerActions,
-  type UIMessengerEvents,
-} from './ui-messenger';
+import { UIMessenger, type UIMessengerEvents } from './ui-messenger';
 
 jest.mock('../store/background-connection', () => ({
   submitRequestToBackground: jest.fn(),
@@ -22,13 +19,31 @@ const mockSubmitRequestToBackground = jest.mocked(submitRequestToBackground);
 const mockSubscribeToMessengerEvent = jest.mocked(subscribeToMessengerEvent);
 
 /**
+ * A permissive stand-in for the delegatee's action types. Typing the mock with
+ * the full `UIMessengerActions` union re-resolves the aggregate action union,
+ * which exceeds TypeScript's representation limit (TS2590) once enough
+ * controllers are registered; the tests only need a representable placeholder.
+ */
+type MockDelegateeAction =
+  | {
+      type: 'SnapController:installSnaps';
+      handler: (...args: Json[]) => Promise<Json>;
+    }
+  | {
+      type: 'KeyringController:addKeyring';
+      handler: (...args: Json[]) => Promise<Json>;
+    };
+
+/**
  * Create a delegatee messenger for testing. Uses MOCK_ANY_NAMESPACE to avoid
  * namespace restrictions.
  */
 function createDelegatee() {
-  return new Messenger<MockAnyNamespace, UIMessengerActions, UIMessengerEvents>(
-    { namespace: MOCK_ANY_NAMESPACE },
-  );
+  return new Messenger<
+    MockAnyNamespace,
+    MockDelegateeAction,
+    UIMessengerEvents
+  >({ namespace: MOCK_ANY_NAMESPACE });
 }
 
 describe('UIMessenger', () => {
