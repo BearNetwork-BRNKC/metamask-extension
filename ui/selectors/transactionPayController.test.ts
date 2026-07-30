@@ -6,6 +6,7 @@ import {
   selectTransactionPayQuotesByTransactionId,
   selectTransactionPayTokensByTransactionId,
   selectTransactionPaymentTokenByTransactionId,
+  selectAccountOverrideByTransactionId,
   selectTransactionPaySourceAmountsByTransactionId,
   selectTransactionPayIsMaxAmountByTransactionId,
   TransactionPayState,
@@ -193,6 +194,45 @@ describe('transactionPayController selectors', () => {
       const result = selectTransactionPaymentTokenByTransactionId(
         state,
         TRANSACTION_ID,
+      );
+
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('selectAccountOverrideByTransactionId', () => {
+    it('returns accountOverride for given transaction ID', () => {
+      const state = createMockState({
+        accountOverride: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+      });
+
+      const result = selectAccountOverrideByTransactionId(
+        state,
+        TRANSACTION_ID,
+      );
+
+      expect(result).toBe('0xabcdefabcdefabcdefabcdefabcdefabcdefabcd');
+    });
+
+    it('returns undefined when no accountOverride exists', () => {
+      const state = createMockState();
+
+      const result = selectAccountOverrideByTransactionId(
+        state,
+        TRANSACTION_ID,
+      );
+
+      expect(result).toBeUndefined();
+    });
+
+    it('returns undefined for a non-existent transaction ID', () => {
+      const state = createMockState({
+        accountOverride: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+      });
+
+      const result = selectAccountOverrideByTransactionId(
+        state,
+        'non-existent-id',
       );
 
       expect(result).toBeUndefined();

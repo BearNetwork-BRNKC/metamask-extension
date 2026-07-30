@@ -37,6 +37,15 @@ export const selectTransactionPaymentTokenByTransactionId = createSelector(
   (transactionData) => transactionData?.paymentToken,
 );
 
+/**
+ * Funding account override for a transaction, when the user picks a different
+ * "From" account on money-account deposit (or similar) confirmations.
+ */
+export const selectAccountOverrideByTransactionId = createSelector(
+  selectTransactionDataByTransactionId,
+  (transactionData) => transactionData?.accountOverride,
+);
+
 export const selectTransactionPaySourceAmountsByTransactionId = createSelector(
   selectTransactionDataByTransactionId,
   (transactionData) => transactionData?.sourceAmounts,
