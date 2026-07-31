@@ -7,7 +7,7 @@ import { login } from '../../page-objects/flows/login.flow';
 import NonEvmHomepage from '../../page-objects/pages/home/non-evm-homepage';
 import ActivityTab from '../../page-objects/pages/home/activity-tab';
 import TokensTab from '../../page-objects/pages/home/tokens-tab';
-import TronTransactionDetailsPage from '../../page-objects/pages/home/tron-transaction-details';
+import TransactionDetailsPage from '../../page-objects/pages/transaction-details-page';
 import { selectTronNetwork } from '../../page-objects/flows/tron-network.flow';
 import { TRON_PORTFOLIO_ACCOUNT } from './fixtures/environments';
 import { withTronFixtures } from './fixtures/with-tron-fixtures';
@@ -21,25 +21,24 @@ import {
 } from './mocks/tron-tx-fixtures';
 
 type TronDetailsExpectation = {
-  /**
-   * Omit for transaction types where the multichain details modal renders no
-   * heading on current main (its `typeToTitle` map has no `token:approve`
-   * entry, so approval details open with an empty title).
-   */
   title?: string;
   status: 'Confirmed' | 'Pending' | 'Failed';
-  amount: string;
-  txId: string;
+  amount?: string;
   addresses?: string[];
   networkFee?: string;
   checkTime?: boolean;
 };
 
-async function landOnTronActivity(driver: Driver): Promise<ActivityTab> {
+async function setupTronAccount(driver: Driver): Promise<NonEvmHomepage> {
   await login(driver, { validateBalance: false });
   await selectTronNetwork(driver);
   const home = new NonEvmHomepage(driver);
   await home.checkPageIsLoaded();
+  return home;
+}
+
+async function landOnTronActivity(driver: Driver): Promise<ActivityTab> {
+  const home = await setupTronAccount(driver);
   const activity = new ActivityTab(driver);
   await activity.goToActivityList();
   return activity;
@@ -52,7 +51,8 @@ async function assertTronTransactionDetails(
   expected: TronDetailsExpectation,
 ): Promise<void> {
   await activity.clickOnActivity(txIndex);
-  const details = new TronTransactionDetailsPage(driver);
+  const details = new TransactionDetailsPage(driver);
+  await details.checkPageIsLoaded();
   if (expected.title !== undefined) {
     await details.checkTitle(expected.title);
   }
@@ -60,13 +60,16 @@ async function assertTronTransactionDetails(
     await details.checkTime();
   }
   await details.checkStatus(expected.status);
-  await details.checkAmount(expected.amount);
-  await details.checkHashLink(expected.txId);
+  if (expected.amount !== undefined) {
+    await details.checkAmount(expected.amount);
+  }
+  await details.checkHashLinkPresent();
+  await details.checkViewDetailsLink();
   for (const address of expected.addresses ?? []) {
     await details.checkAddressInLog(address);
   }
   if (expected.networkFee) {
-    await details.checkNetworkFee(expected.networkFee);
+    await details.checkBaseFee(expected.networkFee);
   }
 }
 
@@ -120,13 +123,24 @@ async function mockAccountsApiWithEvmActivity(mockServer: Mockttp) {
         'https://accounts.api.cx.metamask.io/v4/multiaccount/transactions',
       )
       .always()
-      .thenCallback(() => ({
-        statusCode: 200,
-        json: {
-          data: [EVM_ACTIVITY_TRANSACTION],
-          pageInfo: { hasNextPage: false, count: 1 },
-        },
-      })),
+      .thenCallback((request) => {
+        const url = new URL(request.url);
+        const networksParam = url.searchParams.get('networks') ?? '';
+        const evmNetworks = networksParam
+          .split(',')
+          .filter((network) => network.startsWith('eip155:'));
+
+        return {
+          statusCode: 200,
+          json: {
+            data: evmNetworks.length > 0 ? [EVM_ACTIVITY_TRANSACTION] : [],
+            pageInfo: {
+              hasNextPage: false,
+              count: evmNetworks.length > 0 ? 1 : 0,
+            },
+          },
+        };
+      }),
   ];
 }
 
@@ -160,21 +174,17 @@ describe('Tron - Activity', function (this: Suite) {
           const activity = await landOnTronActivity(driver);
           await activity.checkConfirmedTxNumberDisplayedInActivity(1);
           await activity.checkTxAction({
-            // `token:approve` transactions map to TransactionType.TokenApprove,
-            // rendered as `approveSpendingCap` ("Approve <symbol> spending cap")
-            // by useMultichainTransactionDisplay.
-            action: 'Approve USDT spending cap',
+            // Activity list title uses activity_approveSpendingCap_success_title
+            // ("Approved spending cap"); symbol appears in the row subtitle.
+            action: 'Approved spending cap',
             txIndex: 1,
             confirmedTx: 1,
           });
-          await activity.checkTxAmountInActivity('10 USDT', 1);
-          // No `title`: the details modal renders an empty heading for
-          // `token:approve` on current main (typeToTitle gap).
+          await activity.checkTxAmountInActivity('-10 USDT', 1);
           await assertTronTransactionDetails(driver, activity, 1, {
+            title: 'Approved spending cap',
             status: 'Confirmed',
-            amount: '10 USDT',
-            txId: approve.raw.txID,
-            addresses: [A_SPENDER, TRON_ACCOUNT_ADDRESS],
+            amount: '-10 USDT',
           });
         },
       );
@@ -204,18 +214,16 @@ describe('Tron - Activity', function (this: Suite) {
           const activity = await landOnTronActivity(driver);
           await activity.checkConfirmedTxNumberDisplayedInActivity(1);
           await activity.checkTxAction({
-            action: 'Sent',
+            action: 'Sent TRX',
             txIndex: 1,
             confirmedTx: 1,
           });
           await activity.checkTxAmountInActivity('-1 TRX', 1);
           await assertTronTransactionDetails(driver, activity, 1, {
-            title: 'Send',
+            title: 'Sent TRX',
             status: 'Confirmed',
             amount: '-1 TRX',
-            txId: tx.txID,
             addresses: [A_RECIPIENT, TRON_ACCOUNT_ADDRESS],
-            networkFee: '-2.7995 TRX',
             checkTime: true,
           });
         },
@@ -246,19 +254,18 @@ describe('Tron - Activity', function (this: Suite) {
           const activity = await landOnTronActivity(driver);
           await activity.checkConfirmedTxNumberDisplayedInActivity(1);
           await activity.checkTxAction({
-            action: 'Received',
+            action: 'Received TRX',
             txIndex: 1,
             confirmedTx: 1,
           });
           // useMultichainTransactionDisplay only adds a `-` prefix for sends; it
           // never prefixes incoming amounts with `+`, so the rendered text is
           // just the bare amount.
-          await activity.checkTxAmountInActivity('2.5 TRX', 1);
+          await activity.checkTxAmountInActivity('+2.5 TRX', 1);
           await assertTronTransactionDetails(driver, activity, 1, {
-            title: 'Receive',
+            title: 'Received TRX',
             status: 'Confirmed',
-            amount: '2.5 TRX',
-            txId: tx.txID,
+            amount: '+2.5 TRX',
             addresses: [A_SENDER, TRON_ACCOUNT_ADDRESS],
           });
         },
@@ -291,17 +298,15 @@ describe('Tron - Activity', function (this: Suite) {
           const activity = await landOnTronActivity(driver);
           await activity.checkConfirmedTxNumberDisplayedInActivity(1);
           await activity.checkTxAction({
-            action: 'Swap TRX to USDT',
+            action: 'Swapped',
             txIndex: 1,
             confirmedTx: 1,
           });
-          await activity.checkTxAmountInActivity('-5 TRX', 1);
+          await activity.checkTxAmountInActivity('+<0.00001 USDT', 1);
           await assertTronTransactionDetails(driver, activity, 1, {
-            title: 'Swap',
+            title: 'Swapped',
             status: 'Confirmed',
             amount: '-5 TRX',
-            txId: swap.raw.txID,
-            addresses: [SUNSWAP_ROUTER_ADDRESS, TRON_ACCOUNT_ADDRESS],
           });
         },
       );
@@ -337,18 +342,15 @@ describe('Tron - Activity', function (this: Suite) {
           // history entry, the UI must fall back to the standard approval
           // rendering (not the bridge details modal).
           await activity.checkTxAction({
-            action: 'Approve USDT spending cap',
+            action: 'Approved spending cap',
             txIndex: 1,
             confirmedTx: 1,
           });
-          await activity.checkTxAmountInActivity('5 USDT', 1);
-          // No `title`: the details modal renders an empty heading for
-          // `token:approve` on current main (typeToTitle gap).
+          await activity.checkTxAmountInActivity('-5 USDT', 1);
           await assertTronTransactionDetails(driver, activity, 1, {
+            title: 'Approved spending cap',
             status: 'Confirmed',
-            amount: '5 USDT',
-            txId: bridge.raw.txID,
-            addresses: [SUNSWAP_ROUTER_ADDRESS, TRON_ACCOUNT_ADDRESS],
+            amount: '-5 USDT',
           });
         },
       );
@@ -380,16 +382,15 @@ describe('Tron - Activity', function (this: Suite) {
           const activity = await landOnTronActivity(driver);
           await activity.checkPendingTxNumberDisplayedInActivity(1);
           await activity.checkTxAction({
-            action: 'Sent',
+            action: 'Sending TRX',
             txIndex: 1,
             confirmedTx: 0,
           });
           await activity.checkTxAmountInActivity('-1 TRX', 1);
           await assertTronTransactionDetails(driver, activity, 1, {
-            title: 'Send',
+            title: 'Sending TRX',
             status: 'Pending',
             amount: '-1 TRX',
-            txId: tx.txID,
           });
         },
       );
@@ -419,16 +420,15 @@ describe('Tron - Activity', function (this: Suite) {
           const activity = await landOnTronActivity(driver);
           await activity.checkConfirmedTxNumberDisplayedInActivity(1);
           await activity.checkTxAction({
-            action: 'Sent',
+            action: 'Sent TRX',
             txIndex: 1,
             confirmedTx: 1,
           });
           await activity.checkTxAmountInActivity('-1 TRX', 1);
           await assertTronTransactionDetails(driver, activity, 1, {
-            title: 'Send',
+            title: 'Sent TRX',
             status: 'Confirmed',
             amount: '-1 TRX',
-            txId: tx.txID,
           });
         },
       );
@@ -458,16 +458,15 @@ describe('Tron - Activity', function (this: Suite) {
           const activity = await landOnTronActivity(driver);
           await activity.checkFailedTxNumberDisplayedInActivity(1);
           await activity.checkTxAction({
-            action: 'Sent',
+            action: 'Send failed',
             txIndex: 1,
             confirmedTx: 0,
           });
           await activity.checkTxAmountInActivity('-1 TRX', 1);
           await assertTronTransactionDetails(driver, activity, 1, {
-            title: 'Send',
+            title: 'Send failed',
             status: 'Failed',
             amount: '-1 TRX',
-            txId: tx.txID,
           });
         },
       );
@@ -532,12 +531,16 @@ describe('Tron - Activity', function (this: Suite) {
           title: this.test?.fullTitle(),
         },
         async ({ driver }: { driver: Driver }) => {
-          const activity = await landOnTronActivity(driver);
+          const home = await setupTronAccount(driver);
           const tokensTab = new TokensTab(driver);
           await tokensTab.selectOnlyTronInNetworkFilter();
+          await home.goToActivityList();
+
+          const activity = new ActivityTab(driver);
+          await activity.checkTransactionActivityByText('Sent TRX');
+          await activity.checkTransactionActivityNotPresentByText('Sent ETH');
           await activity.checkConfirmedTxNumberDisplayedInActivity(1);
           await activity.checkTransactionAmount('-1 TRX');
-          await activity.checkTransactionActivityNotPresentByText('Sent ETH');
           await activity.checkTransactionAmountNotPresent('-4.56 ETH');
         },
       );

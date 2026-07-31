@@ -4,6 +4,13 @@ import {
   waitForNetworkManagerBackdropToClear,
 } from './network.flow';
 
+async function dismissVisibleToasts(driver: Driver): Promise<void> {
+  await driver.clickElementSafe(
+    { css: '.toast-container button[aria-label="Close"]' },
+    5000,
+  );
+}
+
 /**
  * Selects the Tron network from the Network Manager Popular tab and waits for
  * any leftover modal backdrop to clear so subsequent clicks are not blocked.
@@ -14,6 +21,8 @@ import {
  * @param driver - WebDriver instance
  */
 export async function selectTronNetwork(driver: Driver): Promise<void> {
+  await dismissVisibleToasts(driver);
   await switchToNetworkFromNetworkSelect(driver, 'Popular', 'Tron');
   await waitForNetworkManagerBackdropToClear(driver);
+  await dismissVisibleToasts(driver);
 }
