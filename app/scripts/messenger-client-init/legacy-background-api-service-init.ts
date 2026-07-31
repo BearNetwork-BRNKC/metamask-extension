@@ -18,6 +18,7 @@ import { MessengerClientInitFunction } from './types';
  * @param request.seedlessOperationMutex - A mutex to use for seedless operations.
  * @param request.createVaultMutex - A mutex to serialize vault creation/export with locking.
  * @param request.offscreenPromise - A promise that resolves when the offscreen document is ready.
+ * @param request.onPermittedAccountsAdded - A callback invoked after permitted accounts are extended for an origin.
  * @returns The initialized service.
  */
 export const LegacyBackgroundApiServiceInit: MessengerClientInitFunction<
@@ -34,6 +35,7 @@ export const LegacyBackgroundApiServiceInit: MessengerClientInitFunction<
   seedlessOperationMutex,
   createVaultMutex,
   offscreenPromise,
+  onPermittedAccountsAdded,
 }) => {
   const messengerClient = new LegacyBackgroundApiService({
     messenger: controllerMessenger,
@@ -46,6 +48,7 @@ export const LegacyBackgroundApiServiceInit: MessengerClientInitFunction<
     seedlessOperationMutex,
     createVaultMutex,
     offscreenPromise,
+    onPermittedAccountsAdded,
   });
 
   return {

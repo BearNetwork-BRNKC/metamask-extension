@@ -5,6 +5,7 @@ import type {
 } from '@metamask/messenger';
 import { Duplex } from 'readable-stream';
 import { SubjectType } from '@metamask/permission-controller';
+import type { CaipAccountId } from '@metamask/utils';
 import { PreinstalledSnap } from '@metamask/snaps-controllers';
 import { Browser } from 'webextension-polyfill';
 import { Mutex } from 'async-mutex';
@@ -254,6 +255,14 @@ export type MessengerClientInitRequest<
    *
    */
   sendUpdate: () => void;
+
+  /**
+   * A callback invoked after permitted accounts are extended for an origin.
+   */
+  onPermittedAccountsAdded: (payload: {
+    origin: string;
+    newCaipAccountIds: CaipAccountId[];
+  }) => void;
 };
 
 /**
