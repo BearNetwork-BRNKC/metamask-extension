@@ -1209,6 +1209,20 @@ describe('Bridge selectors', () => {
       expect(recommendedQuote).toStrictEqual(
         mergeQuoteMetadata(mockErc20Erc20Quotes[0], calculatedQuoteMetadata),
       );
+      // const {
+      //   quote,
+      //   approval,
+      //   trade,
+      //   estimatedProcessingTimeInSeconds,
+      //   ...calculatedQuoteMetadata
+      // } = recommendedQuote as QuoteResponseV1;
+      // expect(calculatedQuoteMetadata).toMatchSnapshot();
+      // expect({
+      //   quote,
+      //   approval,
+      //   trade,
+      //   estimatedProcessingTimeInSeconds,
+      // }).toStrictEqual(mockErc20Erc20Quotes[0]);
       const quoteMetadata = toQuoteMetadataV1(
         recommendedQuote as QuoteResponse,
       );

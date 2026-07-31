@@ -1,7 +1,10 @@
 import {
+  calcQuoteMetadata,
   getNativeAssetForChainId,
+  toQuoteMetadataV2,
   toQuoteResponseV2,
 } from '@metamask/bridge-controller';
+import { merge } from 'lodash';
 
 const mockQuotes = [
   {
@@ -273,3 +276,26 @@ const mockQuotes = [
 ];
 
 export default mockQuotes.map(toQuoteResponseV2);
+//   .map((quote) => {
+//   const v1Metadata = calcQuoteMetadata(quote, {
+//     bridgeFeesPerGas: {
+//       estimatedBaseFeeInDecGwei: '1',
+//       feePerGasInDecGwei: '0.00018456',
+//     },
+//     srcTokenExchangeRate: {
+//       usdExchangeRate: '1',
+//       exchangeRate: '2524.25',
+//     },
+//     destTokenExchangeRate: {
+//       usdExchangeRate: '0.95',
+//       exchangeRate: '0.95',
+//     },
+//     nativeExchangeRate: {
+//       usdExchangeRate: '2524.25',
+//       exchangeRate: '1',
+//     },
+//   });
+
+//   console.log('======v1Metadata', v1Metadata);
+//   return merge({}, quote, toQuoteMetadataV2(v1Metadata, quote));
+// });

@@ -20,6 +20,7 @@ import {
   RequestStatus,
   isNonEvmChainId,
   sumAmounts,
+  selectExchangeRateByAssetId,
 } from '@metamask/bridge-controller';
 import type { RemoteFeatureFlagControllerState } from '@metamask/remote-feature-flag-controller';
 import type { AccountsControllerState } from '@metamask/accounts-controller';
@@ -745,15 +746,16 @@ export const getBridgeQuotes = createSelector(
     ({ metamask }: BridgeAppState) => metamask,
     ({ bridge: { sortOrder } }: BridgeAppState) => sortOrder,
     ({ bridge: { selectedQuote } }: BridgeAppState) => selectedQuote,
+    (_, params?: { migrationPhase?: string }) =>
+      params?.migrationPhase ?? BRIDGE_QUOTE_RESPONSE_MIGRATION_PHASE,
   ],
-  (controllerStates, sortOrder, selectedQuote) => {
+  (controllerStates, sortOrder, selectedQuote, migrationPhase) => {
     const quotes = selectBridgeQuotes(controllerStates, {
       sortOrder,
       selectedQuote,
       // Decides whether to prioritize legacy metadata over new metadata
-      migrationPhase: BRIDGE_QUOTE_RESPONSE_MIGRATION_PHASE,
+      migrationPhase,
     });
-
     return quotes;
   },
 );

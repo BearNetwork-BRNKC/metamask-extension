@@ -43,6 +43,7 @@ import {
 } from '../../../shared/constants/batch-sell';
 import { isStockRWAToken } from '../../pages/bridge/hooks/useRWAToken';
 import { BatchSellAsset } from './types';
+import { BRIDGE_QUOTE_RESPONSE_MIGRATION_PHASE } from '../../../shared/constants/bridge';
 
 /**
  * Determines whether a held asset can be offered as a batch-sell source
@@ -332,12 +333,21 @@ export const getBatchSellQuotes = createSelector(
     ({ bridge: { sortOrder } }: BridgeAppState) => sortOrder,
     ({ bridge: { selectedQuote } }: BridgeAppState) => selectedQuote,
     (_, { requestCount }: { requestCount: number }) => requestCount,
+    (_, { migrationPhase }: { migrationPhase?: '1' | '2' | '1.5' }) =>
+      migrationPhase ?? BRIDGE_QUOTE_RESPONSE_MIGRATION_PHASE,
   ],
-  (controllerStates, sortOrder, selectedQuote, requestCount) => {
+  (
+    controllerStates,
+    sortOrder,
+    selectedQuote,
+    requestCount,
+    migrationPhase,
+  ) => {
     return selectBatchSellQuotes(controllerStates, {
       sortOrder,
       requestCount,
       selectedQuote,
+      migrationPhase,
     });
   },
 );
