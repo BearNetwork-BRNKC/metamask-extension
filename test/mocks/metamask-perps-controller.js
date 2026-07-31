@@ -203,6 +203,9 @@ const mockPerpsEventValueLiterals = {
     WARNING: 'warning',
     NETWORK: 'network',
   },
+  ERROR_MESSAGE_KEY: {
+    INSUFFICIENT_BALANCE: 'insufficient_balance',
+  },
   SOURCE: {
     HOMESCREEN_TAB: 'homescreen_tab',
     MARKET_LIST: 'perps_market_list_all',

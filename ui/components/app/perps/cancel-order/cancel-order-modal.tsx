@@ -172,10 +172,27 @@ export const CancelOrderModal = ({
         },
       ]);
       if (!result?.success) {
+        const failure = new Error(result?.error ?? t('somethingWentWrong'));
+        // The order is already off the book (filled, cancelled elsewhere, or
+        // removed with its position). The user wanted it gone and it is gone, so
+        // close out quietly instead of surfacing a failure they cannot act on.
+        if (isOrderNoLongerOpenError(failure)) {
+          replacePerpsToastByKey({
+            key: PERPS_TOAST_KEYS.CANCEL_ORDER_ALREADY_CLOSED,
+            dataTestId: 'perps-toast-cancel-order-already-closed',
+          });
+          setIsSubmitting(false);
+          onClose();
+          return;
+        }
         // Controller already emitted cancel submitted/terminal analytics —
         // surface UI only; do not throw into catch (would duplicate PerpsError).
-        const errorMessage = result?.error ?? t('somethingWentWrong');
-        setError(errorMessage);
+        // Raw provider prose (`ORDER_UNKNOWN_COIN`, `cancel 0: …`) reaches this
+        // branch, so translate before it hits the trader.
+        const displayedError =
+          translatePerpsError(failure, t as (key: string) => string) ??
+          t('perpsCancelOrderFailed');
+        setError(displayedError);
         // The error is DISPLAYED here, so emit the error screen view even though
         // we intentionally skip the client PerpsError.
         trackPerpsErrorScreenViewed(
@@ -185,7 +202,7 @@ export const CancelOrderModal = ({
         );
         replacePerpsToastByKey({
           key: PERPS_TOAST_KEYS.CANCEL_ORDER_FAILED,
-          description: errorMessage,
+          description: displayedError,
         });
         setIsSubmitting(false);
         return;
