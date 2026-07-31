@@ -314,8 +314,7 @@
     "@pmmmwh/react-refresh-webpack-plugin@npm:^0.5.11": "patch:@pmmmwh/react-refresh-webpack-plugin@npm%3A0.5.13#~/.yarn/patches/@pmmmwh-react-refresh-webpack-plugin-npm-0.5.13-25d13d4186.patch",
     "@metamask/messenger": "^2.0.0",
     "postcss@npm:7.0.36": "patch:postcss@npm%3A7.0.39#~/.yarn/patches/postcss-npm-7.0.39-0f8737296e.patch",
-    "postcss@npm:^7.0.16": "patch:postcss@npm%3A7.0.39#~/.yarn/patches/postcss-npm-7.0.39-0f8737296e.patch",
-    "@metamask/network-enablement-controller": "npm:@metamask-previews/network-enablement-controller@5.6.0-preview-510706307"
+    "postcss@npm:^7.0.16": "patch:postcss@npm%3A7.0.39#~/.yarn/patches/postcss-npm-7.0.39-0f8737296e.patch"
   },
   "dependencies": {
     "@babel/runtime": "patch:@babel/runtime@npm%3A7.29.2#~/.yarn/patches/@babel-runtime-npm-7.29.2-b49cad1c67.patch",
@@ -365,7 +364,7 @@
     "@metamask/client-controller": "^1.0.0",
     "@metamask/client-utils": "patch:@metamask/client-utils@npm%3A1.2.0#~/.yarn/patches/@metamask-client-utils-npm-1.2.0-1adc40c3f3.patch",
     "@metamask/compliance-controller": "^2.1.0",
-    "@metamask/config-registry-controller": "^0.4.0",
+    "@metamask/config-registry-controller": "^1.0.0",
     "@metamask/connectivity-controller": "^0.2.0",
     "@metamask/contract-metadata": "^2.5.0",
     "@metamask/controller-utils": "^12.3.0",
@@ -421,7 +420,7 @@
     "@metamask/multichain-transactions-controller": "^7.1.0",
     "@metamask/name-controller": "^9.1.0",
     "@metamask/network-controller": "^34.0.0",
-    "@metamask/network-enablement-controller": "^5.6.0",
+    "@metamask/network-enablement-controller": "^6.0.0",
     "@metamask/notification-services-controller": "^26.0.0",
     "@metamask/object-multiplex": "^2.0.0",
     "@metamask/obs-store": "^9.0.0",
