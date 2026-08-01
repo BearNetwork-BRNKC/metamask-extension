@@ -7087,7 +7087,7 @@
     "message": "Depositar novamente"
   },
   "perpsFunding": {
-    "message": "Captação"
+    "message": "Financiamento"
   },
   "perpsFundingPayments": {
     "message": "Pagamentos de funding"
@@ -10927,9 +10927,6 @@
   },
   "turnOnTokenDetection": {
     "message": "Ativar detecção avançada de token"
-  },
-  "tutorial": {
-    "message": "Tutorial"
   },
   "txAlertTitle": {
     "message": "Esta transação será revertida"

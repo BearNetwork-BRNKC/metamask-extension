@@ -7647,6 +7647,9 @@
   "perpsUnrealizedPnl": {
     "message": "Gerçekleşmemiş K&Z"
   },
+  "perpsUnsupportedCollateral": {
+    "message": "Bu piyasada desteklenmeyen teminat kullanılıyor ve işlem yapılamaz."
+  },
   "perpsWatchlist": {
     "message": "İzleme Listesi"
   },
@@ -7726,6 +7729,10 @@
   "perpsWithdrawTooltip": {
     "message": "MetaMask, sizin için istediğiniz tokena takas gerçekleştirecek. mUSD'ye takas gerçekleştirirken MetaMask ücreti uygulanmaz.",
     "description": "Tooltip shown on the Transaction fee row of the Perps Withdraw confirmation"
+  },
+  "perpsWithdrewVerb": {
+    "message": "Çekildi",
+    "description": "Verb shown in the title of a wallet-tracked withdrawal transaction on the Activity page, followed by the amount and asset (e.g. 'Withdrew 5.00 USDC')"
   },
   "perpsYouReceive": {
     "message": "Aldığınız"
@@ -7970,6 +7977,9 @@
   "rampsBuyToken": {
     "message": "$1 Al",
     "description": "$1 is the token symbol being purchased"
+  },
+  "rampsBuyWidgetError": {
+    "message": "Satın alma işleminiz başlatılamıyor. Lütfen tekrar deneyin."
   },
   "rampsBuyingViaProvider": {
     "message": "$1 üzerinden satın alınıyor.",
@@ -8718,6 +8728,12 @@
   },
   "securitySrpLabel": {
     "message": "GİZLİ KURTARMA İFADELERİ"
+  },
+  "securityTrustMaliciousTokenSheetDescription": {
+    "message": "$1 üzerinde ciddi risk sinyalleri tespit edildi. Bu token ile işlem yapmamanızı tavsiye ederiz."
+  },
+  "securityTrustVerifiedTokenDescription": {
+    "message": "$1 aktif olarak işlem görmekte olup yaygın olarak tanınmaktadır. Doğrulama, MetaMask tarafından onaylandığı anlamına gelmez."
   },
   "seeAllPermissions": {
     "message": "Tüm izinleri gör",
@@ -10935,9 +10951,6 @@
   },
   "turnOnTokenDetection": {
     "message": "Gelişmiş token algılamayı açın"
-  },
-  "tutorial": {
-    "message": "Öğretici"
   },
   "txAlertTitle": {
     "message": "Bu işlem geri alınacak"
