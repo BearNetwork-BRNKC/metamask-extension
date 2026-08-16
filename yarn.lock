@@ -1700,6 +1700,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@bearnetwork/bnes-pqc-snap@npm:0.1.1":
+  version: 0.1.1
+  resolution: "@bearnetwork/bnes-pqc-snap@npm:0.1.1"
+  dependencies:
+    "@metamask/snaps-sdk": "npm:^12.0.0"
+    "@noble/hashes": "npm:^2.0.1"
+  checksum: 10/fc6069e2265df33b45a3bde8e310cec34349e1253b74cc5c207da2ef926aaa2e662f239ea50a25e6c840c56a60067c32479f06e68e8d30b2c83d38cc3e9f62d1
+  languageName: node
+  linkType: hard
+
 "@blockaid/ppom_release@npm:^1.5.3":
   version: 1.5.3
   resolution: "@blockaid/ppom_release@npm:1.5.3"
@@ -9516,6 +9526,13 @@ __metadata:
   version: 1.8.0
   resolution: "@noble/hashes@npm:1.8.0"
   checksum: 10/474b7f56bc6fb2d5b3a42132561e221b0ea4f91e590f4655312ca13667840896b34195e2b53b7f097ec080a1fdd3b58d902c2a8d0fbdf51d2e238b53808a177e
+  languageName: node
+  linkType: hard
+
+"@noble/hashes@npm:^2.0.1":
+  version: 2.3.0
+  resolution: "@noble/hashes@npm:2.3.0"
+  checksum: 10/2a980fa3257269d0f2f0c65ad30033a395121a523cb207bd5e481054cabf21af3cce87a8d657a3d7409924ec28f7fcaaf3fb01150813ac3c9e16964a95ae0ab7
   languageName: node
   linkType: hard
 
@@ -33155,6 +33172,7 @@ __metadata:
     "@babel/preset-typescript": "npm:^7.25.9"
     "@babel/register": "npm:^7.25.9"
     "@babel/runtime": "patch:@babel/runtime@npm%3A7.29.2#~/.yarn/patches/@babel-runtime-npm-7.29.2-b49cad1c67.patch"
+    "@bearnetwork/bnes-pqc-snap": "npm:0.1.1"
     "@blockaid/ppom_release": "npm:^1.5.3"
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.1"

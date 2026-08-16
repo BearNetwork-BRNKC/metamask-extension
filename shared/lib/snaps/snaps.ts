@@ -1,5 +1,6 @@
 import { SnapId } from '@metamask/snaps-sdk';
 import { isFlask } from '../build-types';
+import { BNES_PQC_SNAP_ID } from '../../bnes-pqc/config';
 
 /**
  * Whether to force local Snaps to be treated as preinstalled Snaps.
@@ -11,6 +12,8 @@ const FORCE_PREINSTALLED_SNAPS =
   isFlask() && process.env.FORCE_PREINSTALLED_SNAPS === 'true';
 
 export const PREINSTALLED_SNAPS = [
+  // BearNetwork extension fork: implementation stays in shared/bnes-pqc/.
+  BNES_PQC_SNAP_ID,
   'npm:@metamask/message-signing-snap',
   'npm:@metamask/ens-resolver-snap',
   'npm:@metamask/institutional-wallet-snap',
