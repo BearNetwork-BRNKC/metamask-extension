@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # BNES Wallet 發布腳本
 # 用法：
 #   .\scripts\bnes-release.ps1              → 自動從 package.json 讀取版本
@@ -48,7 +48,13 @@ if (-not (Test-Path $DistDir)) {
 $ManifestPath = Join-Path $DistDir "manifest.json"
 $distManifest = Get-Content $ManifestPath -Raw | ConvertFrom-Json
 $DistVersion  = $distManifest.version
-Write-Host "✅ dist/chrome/manifest.json 版本確認：$DistVersion" -ForegroundColor Cyan
+$DistVersionShort = $distManifest.version_name
+Write-Host "✅ dist/chrome/manifest.json 版本確認：$DistVersion ($DistVersionShort)" -ForegroundColor Cyan
+
+if ($BnesVersion -and $DistVersionShort -and ($DistVersionShort -ne $BnesVersion)) {
+    Write-Host "⚠️ 警告：package.json 版本 ($BnesVersion) 與已編譯的 dist/chrome 版本 ($DistVersionShort) 不一致！" -ForegroundColor Red
+    Write-Host "💡 提示：合併或升級後請務必先執行 yarn.cmd dist 重新編譯，再執行發布腳本。" -ForegroundColor Yellow
+}
 
 # ── Step 4：建立 releases 目錄並取得/打包 ZIP ────────────────
 if (-not (Test-Path $ReleasesDir)) {
