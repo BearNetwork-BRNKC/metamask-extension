@@ -76,6 +76,7 @@ export const CHAIN_IDS = {
   B3_TESTNET: '0x7c9',
   GRAVITY_ALPHA_MAINNET: '0x659',
   GRAVITY_ALPHA_TESTNET_SEPOLIA: '0x34c1',
+  GRAVITY: '0x1f019',
   LISK: '0x46f',
   LISK_SEPOLIA: '0x106a',
   INK_SEPOLIA: '0xba5eD',
@@ -128,4 +129,5 @@ export const CHAIN_IDS = {
   SOMNIA: '0x13a7',
   // BearNetworkChain customization
   ...BEAR_NETWORK_CHAIN_IDS,
+  ZERO_G: '0x4115',
 } as const;

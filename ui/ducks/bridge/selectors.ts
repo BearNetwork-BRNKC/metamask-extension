@@ -866,8 +866,13 @@ export const getFromAmountInCurrency = createSelector(
 
 export const getTxAlerts = (state: BridgeAppState) => state.bridge.txAlert;
 
-export const getActiveQuotePriceData = (state: BridgeAppState) =>
-  getBridgeQuotes(state).activeQuote?.quote?.priceData;
+export const getActiveQuotePriceData = (state: BridgeAppState) => {
+  const priceData = getBridgeQuotes(state).activeQuote?.quote?.priceData;
+  if (!priceData?.priceImpact?.amount) {
+    return undefined;
+  }
+  return priceData;
+};
 
 export const getPriceImpact = (state: BridgeAppState) =>
   getPriceImpactNumber(getBridgeQuotes(state).activeQuote);
@@ -880,7 +885,7 @@ export const getFormattedPriceImpactPercentage = createSelector(
 export const getFormattedPriceImpactFiat = createSelector(
   [
     (state: BridgeAppState) =>
-      getBridgeQuotes(state).activeQuote?.priceImpact?.valueInCurrency,
+      getActiveQuotePriceData(state)?.priceImpact?.valueInCurrency,
     getCurrentCurrency,
   ],
   (priceImpact, currentCurrency) =>
