@@ -137,3 +137,8 @@ temp-llm-workflow-*
 .cursor/commands/
 # Carve-outs: IDE/bugbot config that must stay tracked
 !.cursor/BUGBOT.md
+
+# BNES Local Private Scripts & Artifacts
+scripts/bnes-release.ps1
+/releases
+
