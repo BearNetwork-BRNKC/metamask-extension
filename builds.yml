@@ -193,6 +193,12 @@ env:
   # [BNES] H1.3 — optional seed for BNS resolve; empty keeps isConfigured() false (fail-closed)
   - BNS_REGISTRY_ADDRESS: null
   - BNS_IPFS_GATEWAY_HOST: null
+  # [BNES] BNESOracle address for BRNKC/USD (wallet currencyRates). Override in .metamaskrc if needed.
+  - BNES_ORACLE_ADDRESS: '0xA3e9Dc4Fd7032Db1F4e8C8e776B3a7f23a65a85E'
+  # [BNES] Keeper off-chain history API (spot % + chart)
+  - BNES_PRICE_API_URL: 'https://oracle.bearnetwork.net'
+  # [BNES] Official-wallet BRNKC bridge (same backend as standalone web)
+  - BNES_BRIDGE_API_URL: 'http://127.0.0.1:27431'
   # The unlock password
   - PASSWORD: null
   - TEST_SRP: null

@@ -3,6 +3,8 @@ import {
   TokenRatesController,
   TokenRatesControllerMessenger,
 } from '@metamask/assets-controllers';
+// [BNES] BRNKC marketData (price + % change) from oracle / keeper history API
+import { createBrnkcAwareTokenPricesService } from '../../../../shared/bns/brnkc-token-prices-service';
 import { MessengerClientInitFunction } from '../types';
 import { TokenRatesControllerInitMessenger } from '../messengers/assets';
 import { previousValueComparator } from '../../lib/util';
@@ -26,7 +28,10 @@ export const TokenRatesControllerInit: MessengerClientInitFunction<
   const messengerClient = new TokenRatesController({
     messenger: controllerMessenger,
     state: persistedState.TokenRatesController,
-    tokenPricesService: new CodefiTokenPricesServiceV2(),
+    // [BNES] Codefi for listed assets; BRNKC via BNESOracle + keeper price API
+    tokenPricesService: createBrnkcAwareTokenPricesService({
+      inner: new CodefiTokenPricesServiceV2() as never,
+    }) as never,
     disabled: !preferencesState.useCurrencyRateCheck,
   });
 

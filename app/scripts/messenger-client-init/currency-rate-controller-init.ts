@@ -3,6 +3,8 @@ import {
   CurrencyRateController,
   CurrencyRateMessenger,
 } from '@metamask/assets-controllers';
+// [BNES] BRNKC native fiat rates from BNESOracle (fork-only decorator)
+import { createBrnkcAwareTokenPricesService } from '../../../shared/bns/brnkc-token-prices-service';
 import { CurrencyRateControllerInitMessenger } from './messengers';
 import { MessengerClientInitFunction } from './types';
 
@@ -28,7 +30,12 @@ export const CurrencyRateControllerInit: MessengerClientInitFunction<
     includeUsdRate: true,
     useExternalServices: () =>
       initMessenger.call('PreferencesController:getState').useExternalServices,
-    tokenPricesService: new CodefiTokenPricesServiceV2(),
+    // [BNES] Codefi for listed assets; BRNKC via BNESOracle (see shared/bns/)
+    // Cast: decorator matches AbstractTokenPricesService at runtime; local type avoids
+    // importing non-exported package types across upstream package boundaries.
+    tokenPricesService: createBrnkcAwareTokenPricesService({
+      inner: new CodefiTokenPricesServiceV2() as never,
+    }) as never,
   });
 
   return {

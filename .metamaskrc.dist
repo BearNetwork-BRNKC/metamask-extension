@@ -4,6 +4,14 @@
 ; This variable is required
 INFURA_PROJECT_ID=00000000000
 
+; [BNES] BNESOracle for BRNKC native fiat display (CurrencyRateController).
+; Default also set in builds.yml; override here only if using a different deployment.
+;BNES_ORACLE_ADDRESS=0xA3e9Dc4Fd7032Db1F4e8C8e776B3a7f23a65a85E
+; Keeper price history HTTP (spot percent + chart). Local: http://127.0.0.1:8787
+;BNES_PRICE_API_URL=http://127.0.0.1:8787
+; Optional BNS registry seed (fail-closed when empty)
+;BNS_REGISTRY_ADDRESS=
+
 ; Set this to `true` to enable Seedless onboarding (Social login flow)
 SEEDLESS_ONBOARDING_ENABLED='false'
 

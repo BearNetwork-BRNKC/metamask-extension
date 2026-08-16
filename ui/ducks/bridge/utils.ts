@@ -24,6 +24,11 @@ import {
 import { getAssetImageUrl } from '../../../shared/lib/asset-utils';
 import { BridgeAssetSecurityDataType } from '../../pages/bridge/utils/tokens';
 import type { TokenPayload, BridgeToken } from './types';
+// [BNES] BRNKC-only official-wallet bridge (BSC ↔ BearNetworkChain)
+import {
+  getBnesOfficialBridgeDefaultToAsset,
+  normalizeBnesBridgeChain,
+} from '../../../shared/bns/bridge-pair';
 
 // Re-export isNonEvmChainId from bridge-controller for backward compatibility
 export { isNonEvmChainId as isNonEvmChain } from '@metamask/bridge-controller';
@@ -239,6 +244,16 @@ export const getDefaultToToken = (
   toChainId: CaipChainId,
   fromAssetId: CaipAssetType,
 ) => {
+  // [BNES] Default dest is opposite-chain BRNKC when source is BRNKC
+  const destFromSource = getBnesOfficialBridgeDefaultToAsset({
+    chainId: fromAssetId.split('/')[0],
+    assetId: fromAssetId,
+    address: fromAssetId.split(':').pop(),
+    symbol: 'BRNKC',
+  });
+  if (destFromSource) {
+    return toBridgeToken(destFromSource);
+  }
   const commonPair = BRIDGE_CHAINID_COMMON_TOKEN_PAIR[toChainId];
   // If commonPair is defined and is not the same as the fromToken, return it
   if (
@@ -276,5 +291,9 @@ export const getDefaultToToken = (
 export const isSupportedBridgeChain = (
   caipChainId: string | ChainId,
 ): boolean => {
+  // [BNES] Allow BearNetworkChain in the picker so BRNKC-only official bridge can be selected
+  if (normalizeBnesBridgeChain(String(caipChainId)) === 'bearnetworkchain') {
+    return true;
+  }
   return ALL_ALLOWED_BRIDGE_CHAIN_IDS.includes(caipChainId);
 };

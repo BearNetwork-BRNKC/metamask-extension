@@ -15,8 +15,22 @@ jest.mock('../../../helpers/api-client', () => ({
   },
 }));
 
+// [BNES] Spy wrapper — default still uses real adapter (null for non-BRNKC).
+jest.mock('../../../../shared/bns/historical-prices', () => {
+  const actual = jest.requireActual('../../../../shared/bns/historical-prices');
+  return {
+    ...actual,
+    tryFetchBrnkcChartPrices: jest.fn(actual.tryFetchBrnkcChartPrices),
+  };
+});
+
 const mockPricesFetch = jest.mocked(
   (apiClient.prices as unknown as { fetch: jest.Mock }).fetch,
+);
+
+const mockTryFetchBrnkcChartPrices = jest.mocked(
+  jest.requireMock('../../../../shared/bns/historical-prices')
+    .tryFetchBrnkcChartPrices as typeof import('../../../../shared/bns/historical-prices').tryFetchBrnkcChartPrices,
 );
 
 /**
@@ -416,5 +430,51 @@ describe('useHistoricalPrices', () => {
         },
       });
     });
+  });
+});
+
+describe('useHistoricalPrices [BNES] BRNKC', () => {
+  const chainId = '0x9c8ce';
+  const address = '0x0000000000000000000000000000000000000000';
+  const currency = 'usd';
+  const timeRange = 'P1D';
+  const state = {
+    ...mockBaseState,
+    metamask: {
+      ...mockBaseState.metamask,
+      internalAccounts: {
+        ...mockBaseState.metamask.internalAccounts,
+        selectedAccount: '81b1ead4-334c-4921-9adf-282fde539752',
+      },
+    },
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockPricesFetch.mockResolvedValue({ prices: [] });
+    mockTryFetchBrnkcChartPrices.mockResolvedValue({
+      prices: [
+        [1_000, 0.0003],
+        [2_000, 0.00033],
+      ],
+    });
+  });
+
+  it('uses keeper history and skips Codefi', async () => {
+    const { result } = renderHookWithProvider(
+      () => useHistoricalPrices({ chainId, address, currency, timeRange }),
+      state,
+    );
+
+    await waitFor(() => {
+      expect(result.current.isPlaceholderData).toBe(false);
+    });
+
+    expect(mockPricesFetch).not.toHaveBeenCalled();
+    expect(mockTryFetchBrnkcChartPrices).toHaveBeenCalled();
+    expect(result.current.data.prices).toEqual([
+      { x: 1_000, y: 0.0003 },
+      { x: 2_000, y: 0.00033 },
+    ]);
   });
 });

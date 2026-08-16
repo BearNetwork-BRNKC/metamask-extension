@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TokenSecurityData } from '@metamask/assets-controllers';
 import { parseCaipAssetType, type CaipAssetType } from '@metamask/utils';
+// [BNES] Native BRNKC Verified badge (Codefi has no BRNKC listing)
+import { resolveBrnkcSecurityData } from '../../shared/bns/verified-token';
 import { fetchCachedTokenAssets } from '../pages/bridge/utils/token-security';
 
 type UseTokenSecurityDataOpts = {
@@ -74,7 +76,10 @@ export const useTokenSecurityData = ({
         return;
       }
       const asset = assets?.[0];
-      setSecurityData(asset?.securityData ?? null);
+      // [BNES] Inject Verified for native BRNKC when Codefi has no security data
+      setSecurityData(
+        resolveBrnkcSecurityData(requestAssetId, asset?.securityData ?? null),
+      );
       setAssetMetadata(
         asset
           ? {
@@ -90,7 +95,14 @@ export const useTokenSecurityData = ({
       if (requestAssetId !== activeAssetIdRef.current) {
         return;
       }
-      setError(err as Error);
+      // [BNES] Still show Verified for BRNKC if the remote security API fails
+      const brnkcFallback = resolveBrnkcSecurityData(requestAssetId, null);
+      if (brnkcFallback) {
+        setSecurityData(brnkcFallback);
+        setError(null);
+      } else {
+        setError(err as Error);
+      }
     } finally {
       if (requestAssetId === activeAssetIdRef.current) {
         setIsLoading(false);

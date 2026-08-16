@@ -13,12 +13,16 @@ import type { InputPrimaryDenomination } from '@metamask/bridge-controller';
 import { MetaMetricsHardwareWalletRecoveryLocation } from '../../../../shared/constants/metametrics';
 import {
   getFromAmount,
+  getFromToken,
   getToToken,
   getBridgeQuotes,
   getValidationErrors,
   getWasTxDeclined,
   BridgeAppState,
 } from '../../../ducks/bridge/selectors';
+// [BNES] BRNKC official-wallet bridge — impl in shared/bns
+import { isBnesBscBrnkcBridgePair } from '../../../../shared/bns/bridge-pair';
+import useSubmitBnesOfficialBridge from '../../../hooks/bridge/useSubmitBnesOfficialBridge';
 import { useI18nContext } from '../../../hooks/useI18nContext';
 import { useIsTxSubmittable } from '../../../hooks/bridge/useIsTxSubmittable';
 import {
@@ -50,6 +54,7 @@ export const BridgeCTAButton = ({
   const t = useI18nContext();
 
   const toToken = useSelector(getToToken);
+  const fromToken = useSelector(getFromToken);
 
   const fromAmount = useSelector(getFromAmount);
 
@@ -57,6 +62,12 @@ export const BridgeCTAButton = ({
 
   const { submitBridgeTransaction, isSubmitting } = useSubmitBridgeTransaction(
     inputPrimaryDenomination,
+  );
+  const { submitBnesOfficialBridge, isSubmitting: isSubmittingBnes } =
+    useSubmitBnesOfficialBridge();
+  const isBnesOfficialPair = isBnesBscBrnkcBridgePair(
+    fromToken ?? {},
+    toToken ?? {},
   );
 
   const {
@@ -135,6 +146,16 @@ export const BridgeCTAButton = ({
       };
     }
 
+    if (isBnesOfficialPair && fromAmount && fromToken && toToken) {
+      return {
+        disabled: isSubmittingBnes,
+        onClick: async () => {
+          await submitBnesOfficialBridge();
+        },
+        children: t('swap'),
+      };
+    }
+
     if (!activeQuote) {
       return undefined;
     }
@@ -199,6 +220,11 @@ export const BridgeCTAButton = ({
     isInsufficientNativeReserve,
     isNetworkFeeUnavailable,
     isSubmitting,
+    isSubmittingBnes,
+    isBnesOfficialPair,
+    fromToken,
+    fromAmount,
+    submitBnesOfficialBridge,
     isTxSubmittable,
     onFetchNewQuotes,
     onOpenMarketClosedModal,
@@ -229,7 +255,11 @@ export const BridgeCTAButton = ({
   }, [fromAmount, toToken, needsDestinationAddress, t]);
 
   // Hide the CTA if the quotes are loading or if there are no quotes available
-  if ((isNoQuotesAvailable && !isQuoteExpired) || (isLoading && !activeQuote)) {
+  // [BNES] Official-wallet BRNKC pair does not use Codefi quotes
+  if (
+    !isBnesOfficialPair &&
+    ((isNoQuotesAvailable && !isQuoteExpired) || (isLoading && !activeQuote))
+  ) {
     return null;
   }
 
@@ -240,7 +270,7 @@ export const BridgeCTAButton = ({
       data-testid="bridge-cta-button"
       isFullWidth
       style={{ boxShadow: 'none' }}
-      isLoading={isSubmitting}
+      isLoading={isSubmitting || isSubmittingBnes}
       disabled={buttonProps.disabled}
       onClick={async () => await buttonProps.onClick?.()}
       children={buttonProps.children}

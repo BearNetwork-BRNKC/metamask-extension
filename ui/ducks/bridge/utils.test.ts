@@ -32,6 +32,8 @@ describe('isSupportedBridgeChain', () => {
 
     it('returns false for an unknown EVM chain', () => {
       expect(isSupportedBridgeChain(`eip155:99999` as never)).toBe(false);
+      expect(isSupportedBridgeChain('eip155:641230')).toBe(true);
+      expect(isSupportedBridgeChain('0x9c8ce')).toBe(true);
     });
   });
 

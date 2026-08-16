@@ -55,6 +55,11 @@ import {
   type AccountTreeControllerState,
 } from '@metamask/account-tree-controller';
 import { ALLOWED_BRIDGE_CHAIN_IDS } from '../../../shared/constants/bridge';
+// [BNES] BRNKC-only dest-chain filter for official-wallet bridge
+import {
+  isBnesOfficialBridgeSource,
+  normalizeBnesBridgeChain,
+} from '../../../shared/bns/bridge-pair';
 import { convertCaipToHexChainId } from '../../../shared/lib/network.utils';
 import {
   createDeepEqualSelector,
@@ -441,8 +446,8 @@ export const getFromChain = createSelector(
 );
 
 export const getToChains = createDeepEqualSelector(
-  [getAllBridgeableNetworks, getChainRanking],
-  (allBridgeableNetworks, chainRanking) => {
+  [getAllBridgeableNetworks, getChainRanking, getFromToken],
+  (allBridgeableNetworks, chainRanking, fromToken) => {
     const allChains: Record<CaipChainId, BridgeNetwork> = {
       ...Object.fromEntries(
         FEATURED_RPCS.filter(({ chainId }) =>
@@ -474,7 +479,23 @@ export const getToChains = createDeepEqualSelector(
         });
       }
     });
-    return filteredChains;
+    const bnesCaip = 'eip155:641230' as CaipChainId;
+    const bscCaip = 'eip155:56' as CaipChainId;
+    if (isBnesOfficialBridgeSource(fromToken)) {
+      const destCaip =
+        normalizeBnesBridgeChain(fromToken.chainId) === 'bsc'
+          ? bnesCaip
+          : bscCaip;
+      const dest =
+        filteredChains.find((chain) => chain.chainId === destCaip) ??
+        allChains[destCaip] ?? {
+          chainId: destCaip,
+          name:
+            destCaip === bnesCaip ? 'BearNetworkChain' : 'BNB Smart Chain',
+        };
+      return [dest];
+    }
+    return filteredChains.filter((chain) => chain.chainId !== bnesCaip);
   },
 );
 
