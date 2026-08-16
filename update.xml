@@ -2,7 +2,7 @@
 <gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
   <app appid='hebhblbkkdabgoldnojllkipeoacjioc'>
     <updatecheck
-      codebase='https://github.com/BearNetwork-BRNKC/metamask-extension/releases/download/v13.46.0/bnes-metamask-extension-v13.46.0.zip'
-      version='13.46.0' />
+      codebase='https://github.com/BearNetwork-BRNKC/metamask-extension/releases/download/v13.46.1/bnes-metamask-extension-v13.46.1.zip'
+      version='13.46.1' />
   </app>
 </gupdate>
