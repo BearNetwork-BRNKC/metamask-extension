@@ -139,9 +139,9 @@ temp-llm-workflow-*
 !.cursor/BUGBOT.md
 
 # BNES Local Private Scripts & Artifacts
-scripts/bnes-release.ps1
-/releases
-
+scripts/
+builds/
+releases/
 
 # BNES CRX Packaging
 bnes-metamask.pem
