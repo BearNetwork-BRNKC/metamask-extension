@@ -1,7 +1,7 @@
 ﻿## BNC Wallet v13.46.0
 
 > **代碼基準**：MetaMask 上游 main 分支（package.json version: 13.46.0）
-> **官方最新 Release**：v1.1.0-20260806
+> **官方最新 Release**：v13.44.0
 > **發布日期**：2026-08-16
 
 ### BNES 主要特色
@@ -19,5 +19,3 @@
 6. 選擇解壓縮後的資料夾
 
 > **注意**：此版本不上架 Chrome Web Store，僅提供開源下載安裝。
-
-
