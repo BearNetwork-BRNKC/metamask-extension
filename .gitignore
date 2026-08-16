@@ -142,3 +142,7 @@ temp-llm-workflow-*
 scripts/bnes-release.ps1
 /releases
 
+
+# BNES CRX Packaging
+bnes-metamask.pem
+*.crx
