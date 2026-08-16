@@ -126,8 +126,8 @@ $sha256    = [System.Security.Cryptography.SHA256]::Create()
 $hashBytes = $sha256.ComputeHash($keyBytes)
 $idChars   = @()
 foreach ($b in $hashBytes[0..15]) {
-    $idChars += [char]([int][char]'a' + ($b -band 0x0F))
     $idChars += [char]([int][char]'a' + (($b -shr 4) -band 0x0F))
+    $idChars += [char]([int][char]'a' + ($b -band 0x0F))
 }
 $ExtensionId = -join $idChars
 Write-Host "✅ Extension ID（已計算確認）：$ExtensionId" -ForegroundColor Green
