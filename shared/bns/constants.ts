@@ -52,14 +52,22 @@ export const BNS_SEED_REGISTRY_ADDRESS =
   '';
 
 /**
+ * Production BNESOracle (BRNKC/USD) on BearNetworkChain mainnet.
+ * Used when build env does not inject BNES_ORACLE_ADDRESS.
+ */
+export const BNS_DEFAULT_ORACLE_ADDRESS =
+  '0xA3e9Dc4Fd7032Db1F4e8C8e776B3a7f23a65a85E';
+
+/**
  * BNESOracle address for BRNKC/USD price queries.
- * Optional seed from build-time env; empty means "not configured".
+ * Prefer build-time `BNES_ORACLE_ADDRESS` (builds.yml / .metamaskrc); fall back
+ * to the production mainnet deployment so wallet fiat works out of the box.
  */
 export const BNS_SEED_ORACLE_ADDRESS =
   (typeof process !== 'undefined' &&
     process.env.BNES_ORACLE_ADDRESS &&
     process.env.BNES_ORACLE_ADDRESS.trim()) ||
-  '';
+  BNS_DEFAULT_ORACLE_ADDRESS;
 
 /**
  * BRNKC token addresses.
@@ -72,3 +80,41 @@ export const BRNKC_USD_VIRTUAL_ADDRESS = '0x000000000000000000000000000000000000
  * Matches keeper interval (300s) — no point polling faster than updates.
  */
 export const BNS_ORACLE_PRICE_CACHE_TTL_MS = 5 * 60 * 1000;
+
+/**
+ * Off-chain BRNKC price history HTTP API (Oracle Keeper sidecar).
+ * Public host: https://oracle.bearnetwork.net (spot + history).
+ * Override with BNES_PRICE_API_URL for local docker (:8787) if needed.
+ */
+export const BNS_DEFAULT_PRICE_API_URL = 'https://oracle.bearnetwork.net';
+
+/**
+ * Official Crosschain-Bridge HTTP API (same backend as the standalone web app).
+ * Override with BNES_BRIDGE_API_URL for production hosting.
+ */
+export const BNS_DEFAULT_BRIDGE_API_URL = 'http://127.0.0.1:27431';
+
+export const BNS_BRIDGE_API_URL =
+  (typeof process !== 'undefined' &&
+    process.env.BNES_BRIDGE_API_URL &&
+    process.env.BNES_BRIDGE_API_URL.trim()) ||
+  BNS_DEFAULT_BRIDGE_API_URL;
+
+/** BSC ERC-20 BRNKC — the only token this fork may bridge. */
+export const BNS_BSC_BRNKC_TOKEN =
+  '0x022AbC37223134b0c089a56fFCBB3D41C71C4C5c';
+
+/** Official hot-wallet receivers (user sends BRNKC here). */
+export const BNS_BSC_BRIDGE_ADDRESS =
+  '0x022AbC37223134b0c089a56fFCBB3D41C71C4C5c';
+export const BNS_BNES_BRIDGE_ADDRESS =
+  '0xA2813B5E2c8a7420aBE793A8BEC898b8cF319685';
+
+/** Fixed BSC fee, wei (0.001 BNB). */
+export const BNS_BRIDGE_FEE_WEI = '1000000000000000';
+
+export const BNS_PRICE_API_URL =
+  (typeof process !== 'undefined' &&
+    process.env.BNES_PRICE_API_URL &&
+    process.env.BNES_PRICE_API_URL.trim()) ||
+  BNS_DEFAULT_PRICE_API_URL;

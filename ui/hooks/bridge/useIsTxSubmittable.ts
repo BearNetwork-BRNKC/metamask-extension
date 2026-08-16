@@ -8,6 +8,8 @@ import {
 } from '../../ducks/bridge/selectors';
 import { getMultichainCurrentChainId } from '../../selectors/multichain';
 import { useMultichainSelector } from '../useMultichainSelector';
+// [BNES] Official-wallet BRNKC path does not use Codefi quotes
+import { isBnesBscBrnkcBridgePair } from '../../../shared/bns/bridge-pair';
 
 export const useIsTxSubmittable = () => {
   const fromToken = useSelector(getFromToken);
@@ -25,6 +27,17 @@ export const useIsTxSubmittable = () => {
     isTxAlertPresent,
     isTxAlertLoading,
   } = useSelector(getValidationErrors, shallowEqual);
+
+  if (isBnesBscBrnkcBridgePair(fromToken ?? {}, toToken ?? {})) {
+    return Boolean(
+      fromToken &&
+      toToken &&
+      fromChainId &&
+      fromAmount &&
+      !isInsufficientBalance &&
+      !(isTxAlertLoading || isTxAlertPresent),
+    );
+  }
 
   return Boolean(
     fromToken &&

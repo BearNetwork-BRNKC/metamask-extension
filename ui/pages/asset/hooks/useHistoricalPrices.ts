@@ -13,6 +13,8 @@ import { API_URLS, GC_TIMES, STALE_TIMES } from '@metamask/core-backend';
 import { fromIso8601DurationToPriceApiTimePeriod } from '../util';
 import { toAssetId } from '../../../../shared/lib/asset-utils';
 import { apiClient } from '../../../helpers/api-client';
+// [BNES] BRNKC chart series — impl in shared/bns (Codefi has no BRNKC listing)
+import { tryFetchBrnkcChartPrices } from '../../../../shared/bns/historical-prices';
 
 export type HistoricalPrices = {
   /** The prices data points. Is an empty array if the prices could not be loaded. */
@@ -215,6 +217,18 @@ export const useHistoricalPrices = ({
       const assetType = qk[4] as string;
       const curr = qk[5] as string;
       const period = qk[6] as string;
+      // [BNES] Native BRNKC: keeper history API. Non-BRNKC returns null.
+      const brnkcPrices = await tryFetchBrnkcChartPrices({
+        assetId: `${caipChainId}/${assetType}`,
+        chainId,
+        address,
+        currency: curr,
+        timePeriod: period,
+        signal,
+      });
+      if (brnkcPrices) {
+        return brnkcPrices;
+      }
       return (apiClient.prices as unknown as PricesClientFetch).fetch(
         API_URLS.PRICES,
         `/v3/historical-prices/${caipChainId}/${assetType}`,

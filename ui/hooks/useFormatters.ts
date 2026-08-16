@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { createFormatters } from '@metamask/client-utils';
+// [BNES] Sub-dollar fiat precision — implementation in shared/bns/format-fiat.ts
+import { wrapBnesFormatters } from '../../shared/bns/format-fiat';
 import { getIntlLocale } from '../ducks/locale/locale';
 
 const dateTimeFormatCache: Record<string, Intl.DateTimeFormat> = {};
@@ -35,7 +37,8 @@ export function useFormatters() {
   const locale = useSelector(getIntlLocale);
 
   return useMemo(() => {
-    const base = createFormatters({ locale });
+    // [BNES] wrap only — do not add BRNKC logic in this upstream file
+    const base = wrapBnesFormatters(createFormatters({ locale }));
     return {
       ...base,
       /**

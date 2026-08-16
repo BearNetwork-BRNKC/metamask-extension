@@ -9,9 +9,12 @@ import {
   getFormattedPriceImpactFiat,
   getFormattedPriceImpactPercentage,
   getFromChain,
+  getFromToken,
   getToToken,
   getValidationErrors,
 } from '../../../ducks/bridge/selectors';
+// [BNES] Official-wallet BRNKC pair has no Codefi quotes
+import { isBnesBscBrnkcBridgePair } from '../../../../shared/bns/bridge-pair';
 import { setFromTokenInputValue } from '../../../ducks/bridge/actions';
 import { useI18nContext } from '../../../hooks/useI18nContext';
 import { BannerAlertSeverity } from '../../../components/component-library';
@@ -58,6 +61,11 @@ export const useBridgeAlerts = () => {
   );
 
   const toToken = useSelector(getToToken);
+  const fromToken = useSelector(getFromToken);
+  const isBnesOfficialPair = isBnesBscBrnkcBridgePair(
+    fromToken ?? {},
+    toToken ?? {},
+  );
   const ticker = useMultichainSelector(getMultichainNativeCurrency);
 
   const {
@@ -119,7 +127,12 @@ export const useBridgeAlerts = () => {
       });
     }
 
-    if (isNoQuotesAvailable && !isStockMarketClosed && !isQuoteExpired) {
+    if (
+      isNoQuotesAvailable &&
+      !isStockMarketClosed &&
+      !isQuoteExpired &&
+      !isBnesOfficialPair
+    ) {
       categorizeAlert({
         id: 'no-quotes',
         isDismissable: false,
@@ -313,6 +326,7 @@ export const useBridgeAlerts = () => {
     isInsufficientGasForQuote,
     isLoading,
     isNoQuotesAvailable,
+    isBnesOfficialPair,
     isQuoteExpired,
     isPriceImpactError,
     isPriceImpactWarning,
