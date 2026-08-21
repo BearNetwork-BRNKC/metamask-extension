@@ -148,11 +148,61 @@ yarn.cmd dist
 
 ---
 
+## 發布腳本（CRX + ZIP + release notes + update.xml）
+
+`scripts/bnes-release.ps1` 會自動完成發布所需的所有產物：
+
+1. 從 `dist/chrome/` 與 `builds/` 產生 ZIP
+2. 使用 `bnes-metamask.pem` 簽章並產出 CRX
+3. 寫入 `releases/RELEASE_NOTES_<version>.md`
+4. 更新根目錄 `update.xml`（CRX auto-update 用）
+
+### 執行方式
+
+```powershell
+# 使用 package.json 的 version 作為發布版本
+.\scripts\bnes-release.ps1
+
+# 指定發布版本
+.\scripts\bnes-release.ps1 -BnesVersion 13.46.2
+
+# 若已確定 dist/chrome 存在，可跳過存在性檢查
+.\scripts\bnes-release.ps1 -SkipBuild
+```
+
+### 前置條件
+
+- `yarn.cmd dist` 已執行，`dist/chrome/` 存在
+- `bnes-metamask.pem` 存在於專案根目錄
+- `node` 與 `npx` 可用於計算 Extension ID 與打包 CRX
+
+### 產物
+
+| 路徑 | 說明 |
+|------|------|
+| `releases/bnes-metamask-extension-v<version>.zip` | 手動安裝用 ZIP |
+| `releases/bnes-metamask-extension-v<version>.crx` | CRX auto-update 用 |
+| `releases/RELEASE_NOTES_<version>.md` | Release notes |
+| `update.xml` | Chrome 自動更新檢查位址 |
+
+### 後續步驟
+
+1. 到 GitHub Releases 建立 tag `v<version>`
+2. 上傳 `.crx` 與 `.zip` 為 release assets
+3. 將 `update.xml` 部署到 GitHub Pages（`gh-pages` 分支根目錄）
+
+```text
+https://bearnetwork-brnkc.github.io/metamask-extension/update.xml
+```
+
+---
+
 ## 快速對照
 
 | 用途 | 指令 |
 |------|------|
 | **Bear Network Chain 客製版正式封裝（專用）** | **`yarn.cmd dist`** |
+| 發布腳本（CRX + ZIP + notes + update.xml） | **`.\scripts\bnes-release.ps1`** |
 | 開發 watch | `yarn.cmd start` |
 | Firefox 正式封裝 | `yarn.cmd dist:mv2` |
 | LavaMoat fetch 檢查 | `yarn.cmd lavamoat:check-fetch-endowments` |

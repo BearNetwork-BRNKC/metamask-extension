@@ -1,6 +1,6 @@
 {
   "name": "metamask-crx",
-  "version": "13.46.1",
+  "version": "13.46.2",
   "private": true,
   "imports": {
     "#ui/*": [
@@ -51,8 +51,8 @@
     "start:beta": "yarn start --type beta",
     "start:flask:mv2": "yarn start:mv2 --type flask",
     "start:lavamoat": "yarn start --lavamoat",
-    "dist": "yarn lavamoat:check-fetch-endowments && yarn webpack:lavamoat:build --zip",
-    "dist:mv2": "yarn lavamoat:check-fetch-endowments && yarn webpack:lavamoat:build:mv2 --zip",
+    "dist": "node ./development/bump-dist-version.js && yarn lavamoat:check-fetch-endowments && yarn webpack:lavamoat:build --zip",
+    "dist:mv2": "node ./development/bump-dist-version.js && yarn lavamoat:check-fetch-endowments && yarn webpack:lavamoat:build:mv2 --zip",
     "build": "yarn lavamoat:check-fetch-endowments && yarn webpack:lavamoat:build",
     "build:dev": "yarn webpack",
     "circular-deps:check": "tsx development/circular-deps.ts check",
@@ -340,6 +340,7 @@
   "dependencies": {
     "@babel/runtime": "patch:@babel/runtime@npm%3A7.29.2#~/.yarn/patches/@babel-runtime-npm-7.29.2-b49cad1c67.patch",
     "@bearnetwork/bnes-pqc-snap": "0.1.1",
+    "@bearnetwork/bnes-token-list": "latest",
     "@blockaid/ppom_release": "^1.5.3",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",

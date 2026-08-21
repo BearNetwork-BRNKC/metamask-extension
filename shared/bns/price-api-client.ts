@@ -142,10 +142,16 @@ export async function fetchBrnkcHistory(
       return null;
     }
     const data = (await res.json()) as BrnkcHistoryResponse;
-    if (!Array.isArray(data?.points)) {
+    // [BNES fix] 若 keeper 回傳的 points 為 null/undefined（資料不足），
+    // 改回傳含空陣列的合法結構，避免外層誤判為「BRNKC 請求失敗」。
+    // 只有在回應主結構完全損毀（非物件）時才回傳 null。
+    if (typeof data !== 'object' || data === null) {
       return null;
     }
-    return data;
+    return {
+      ...data,
+      points: Array.isArray(data.points) ? data.points : [],
+    };
   } catch {
     return null;
   }

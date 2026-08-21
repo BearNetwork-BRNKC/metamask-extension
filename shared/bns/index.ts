@@ -130,3 +130,9 @@ export {
   isValidCid,
   normalizeBnesName,
 } from './security';
+export {
+  clearBnesStaticTokenListCache,
+  getBnesStaticTokenList,
+  isBnesChainId,
+} from './token-list';
+export type { BnesTokenInfo, BnesTokenList } from './token-list';

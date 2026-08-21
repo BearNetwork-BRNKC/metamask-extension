@@ -59,6 +59,10 @@ import { useAnalytics } from '../../hooks/useAnalytics';
 import { useDispatch } from '../../store/hooks';
 import { type CustomTokenImportNetworkOption } from './custom-token-import-network-selector';
 import { CustomTokenImportForm } from './custom-token-import-form';
+import {
+  getBnesStaticTokenList,
+  isBnesChainId,
+} from '../../../shared/bns';
 
 const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 const MIN_DECIMAL_VALUE = 0;
@@ -353,9 +357,22 @@ export const CustomTokenImportPage = () => {
       }
 
       // Mirror `attemptToAutoFillTokenParams` from the legacy modal.
-      const info = tokenListForSelectedNetwork?.[
+      let info = tokenListForSelectedNetwork?.[
         standardAddress.toLowerCase()
       ] as TokenMetadataSource | undefined;
+
+      // [BNES] 若在原生的網路代幣清單中找不到，且目前為 BNES 鏈，則查詢我們的靜態列表
+      if (!info && isBnesChainId(selectedNetwork)) {
+        const bnesList = getBnesStaticTokenList();
+        const bnesInfo = bnesList[standardAddress.toLowerCase()];
+        if (bnesInfo) {
+          info = {
+            symbol: bnesInfo.symbol,
+            name: bnesInfo.name,
+            decimals: bnesInfo.decimals,
+          };
+        }
+      }
       const {
         symbol: mergedSymbol,
         name: mergedName,
