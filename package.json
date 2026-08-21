@@ -1,6 +1,6 @@
 {
   "name": "metamask-crx",
-  "version": "13.46.6",
+  "version": "13.46.8",
   "private": true,
   "imports": {
     "#ui/*": [
