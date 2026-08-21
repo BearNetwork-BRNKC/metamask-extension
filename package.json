@@ -1,6 +1,6 @@
 {
   "name": "metamask-crx",
-  "version": "13.46.3",
+  "version": "13.46.4",
   "private": true,
   "imports": {
     "#ui/*": [
@@ -340,7 +340,6 @@
   "dependencies": {
     "@babel/runtime": "patch:@babel/runtime@npm%3A7.29.2#~/.yarn/patches/@babel-runtime-npm-7.29.2-b49cad1c67.patch",
     "@bearnetwork/bnes-pqc-snap": "0.1.1",
-    "@bearnetwork/bnes-token-list": "latest",
     "@blockaid/ppom_release": "^1.5.3",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
