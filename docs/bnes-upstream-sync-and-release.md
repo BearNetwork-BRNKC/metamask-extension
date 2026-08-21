@@ -285,13 +285,53 @@ git push origin main
 
 ## 5. 發布後步驟
 
+### 5.1 建立 GitHub Release
+
 1. 到 GitHub Releases 建立 tag `v<version>`
 2. 上傳 `.crx` 與 `.zip` 為 release assets
-3. 將 `update.xml` 部署到 GitHub Pages（`gh-pages` 分支根目錄）
+
+### 5.2 部署 update.xml 到 GitHub Pages
+
+Chrome 擴充的自動更新依賴 `update.xml` 可從 `update_url` 訪問。必須將 `update.xml` 部署到 `gh-pages` 分支根目錄。
+
+**方法：使用臨時目錄部署（避免污染 main 工作目錄）**
+
+```powershell
+# 1. 建立臨時部署目錄
+$temp = "S:\Ai_Agent\BNES\gh-pages-deploy"
+New-Item -ItemType Directory -Path $temp -Force | Out-Null
+Set-Location $temp
+
+# 2. 初始化 orphan 分支
+git init
+git remote add origin https://github.com/BearNetwork-BRNKC/metamask-extension.git
+git checkout --orphan gh-pages
+git reset --hard
+
+# 3. 複製 update.xml
+Copy-Item "S:\Ai_Agent\BNES\metamask-extension\update.xml" .
+
+# 4. 提交並強制推送
+git add update.xml
+git commit -m "deploy: update.xml for v<version>"
+git push origin gh-pages --force
+
+# 5. 清理臨時目錄
+Set-Location S:\Ai_Agent\BNES
+Remove-Item $temp -Recurse -Force
+```
+
+部署後，`update.xml` 將可通過以下 URL 訪問：
 
 ```text
 https://bearnetwork-brnkc.github.io/metamask-extension/update.xml
 ```
+
+**注意：** GitHub Pages 部署約需 1-2 分鐘才會生效。若推送後立即測試仍 404，請稍後再試。
+
+### 5.3 驗證更新
+
+在 `chrome://extensions/` 頁面點擊「更新」按鈕，確認版本號已更新。
 
 ---
 
@@ -314,7 +354,9 @@ https://bearnetwork-brnkc.github.io/metamask-extension/update.xml
 □ 14. git commit -m "chore(release): v<version>"
 □ 15. git push origin main
 □ 16. 建立 GitHub Release + 上傳 CRX/ZIP
-□ 17. 部署 update.xml 到 GitHub Pages
+□ 17. 部署 update.xml 到 gh-pages 分支（使用臨時目錄避免污染 main）
+□ 18. 等待 1-2 分鐘讓 GitHub Pages 生效
+□ 19. 在 chrome://extensions/ 點擊更新驗證版本
 ```
 
 ---
