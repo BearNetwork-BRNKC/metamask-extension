@@ -5,6 +5,7 @@ import {
 } from '@metamask/assets-controllers';
 // [BNES] BRNKC marketData (price + % change) from oracle / keeper history API
 import { createBrnkcAwareTokenPricesService } from '../../../../shared/bns/brnkc-token-prices-service';
+import { getIsDeprecatedController } from '../../../../shared/lib/assets-unify-state/remote-feature-flag';
 import { MessengerClientInitFunction } from '../types';
 import { TokenRatesControllerInitMessenger } from '../messengers/assets';
 import { previousValueComparator } from '../../lib/util';
@@ -33,6 +34,15 @@ export const TokenRatesControllerInit: MessengerClientInitFunction<
       inner: new CodefiTokenPricesServiceV2() as never,
     }) as never,
     disabled: !preferencesState.useCurrencyRateCheck,
+    isDeprecated: () => {
+      const { remoteFeatureFlags } = initMessenger.call(
+        'RemoteFeatureFlagController:getState',
+      );
+      return getIsDeprecatedController(
+        remoteFeatureFlags,
+        'TokenRatesController',
+      );
+    },
   });
 
   initMessenger.subscribe(

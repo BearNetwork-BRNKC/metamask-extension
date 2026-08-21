@@ -315,6 +315,9 @@
     "@metamask/snaps-controllers": {
       "globals": {
         "fetch": true
+    "@metamask/notification-services-controller>firebase>@firebase/messaging": {
+      "globals": {
+        "PushManager": true
       }
     }
   }

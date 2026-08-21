@@ -5,6 +5,7 @@ import {
 } from '@metamask/assets-controllers';
 // [BNES] BRNKC native fiat rates from BNESOracle (fork-only decorator)
 import { createBrnkcAwareTokenPricesService } from '../../../shared/bns/brnkc-token-prices-service';
+import { getIsDeprecatedController } from '../../../shared/lib/assets-unify-state/remote-feature-flag';
 import { CurrencyRateControllerInitMessenger } from './messengers';
 import { MessengerClientInitFunction } from './types';
 
@@ -36,6 +37,15 @@ export const CurrencyRateControllerInit: MessengerClientInitFunction<
     tokenPricesService: createBrnkcAwareTokenPricesService({
       inner: new CodefiTokenPricesServiceV2() as never,
     }) as never,
+    isDeprecated: () => {
+      const { remoteFeatureFlags } = initMessenger.call(
+        'RemoteFeatureFlagController:getState',
+      );
+      return getIsDeprecatedController(
+        remoteFeatureFlags,
+        'CurrencyRateController',
+      );
+    },
   });
 
   return {
